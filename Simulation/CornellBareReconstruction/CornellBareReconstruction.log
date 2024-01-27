@@ -1,0 +1,56 @@
+Circuit: * C:\Users\jazz\Documents\LTSPICE\EGR4820\CornellBareReconstruction\CornellBareReconstruction.asc
+
+Early termination of direct N-R iteration.
+Direct Newton iteration failed to find .op point.  (Use ".option noopiter" to skip.)
+Starting Gmin stepping
+Gmin = 10
+Gmin = 1.07374
+Gmin = 0.115292
+Gmin = 0.0123794
+Gmin = 0.00132923
+Gmin = 0.000142725
+Gmin = 1.5325e-05
+Gmin = 1.6455e-06
+vernier = 0.5
+vernier = 0.25
+vernier = 0.125
+vernier = 0.0625
+vernier = 0.03125
+vernier = 0.015625
+vernier = 0.0078125
+Gmin = 1.05312e-06
+vernier = 0.00390625
+vernier = 0.00195312
+vernier = 0.000976562
+vernier = 0.000488281
+Gmin = 0
+Gmin stepping failed
+
+Starting source stepping with srcstepmethod=0
+Source Step = 3.0303%
+Source Step = 33.3333%
+Source Step = 63.6364%
+Source Step = 93.9394%
+Source stepping succeeded in finding the operating point.
+
+.step rmag=1e-05
+.step rmag=1e+09
+
+Date: Sat Oct 14 19:28:37 2023
+Total elapsed time: 1.048 seconds.
+
+tnom = 27
+temp = 27
+method = trap
+totiter = 2140
+traniter = 0
+tranpoints = 0
+accept = 0
+rejected = 0
+matrix size = 41
+fillins = 111
+solver = Normal
+Avg thread counts: 2.6/0.0/9.6/2.2
+Matrix Compiler1:     444 opcodes
+Matrix Compiler2: off  [8.5]/9.4/9.9
+
