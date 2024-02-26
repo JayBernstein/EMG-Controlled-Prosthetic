@@ -1,0 +1,23 @@
+%TF.GenerationSoftware,KiCad,Pcbnew,7.0.10-7.0.10~ubuntu22.04.1*%
+%TF.CreationDate,2024-02-22T18:41:36-08:00*%
+%TF.ProjectId,INA129-Amplifier,494e4131-3239-42d4-916d-706c69666965,rev?*%
+%TF.SameCoordinates,PX2bf7208PY9a4d770*%
+%TF.FileFunction,Profile,NP*%
+%FSLAX46Y46*%
+G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
+G04 Created by KiCad (PCBNEW 7.0.10-7.0.10~ubuntu22.04.1) date 2024-02-22 18:41:36*
+%MOMM*%
+%LPD*%
+G01*
+G04 APERTURE LIST*
+%TA.AperFunction,Profile*%
+%ADD10C,0.100000*%
+%TD*%
+G04 APERTURE END LIST*
+D10*
+X0Y49911000D02*
+X99949000Y49911000D01*
+X99949000Y0D01*
+X0Y0D01*
+X0Y49911000D01*
+M02*
