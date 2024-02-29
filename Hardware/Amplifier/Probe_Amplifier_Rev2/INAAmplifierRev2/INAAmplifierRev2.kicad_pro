@@ -58,21 +58,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        "courtyards_overlap|61143868|132580963|e8df6235-0aaf-4979-a075-4b2670fc186e|a1875de1-e211-42a0-b5f7-fb21ff741f6f",
-        "courtyards_overlap|61153501|136802001|8d23a86c-5dfb-4515-9bfa-41abf86c58f1|30ee4fca-db36-4ff5-ac0f-97557dd24efc",
-        "courtyards_overlap|69618500|119470001|fefa26a0-68f3-408c-a164-eeff543f2299|7e9aada5-1e48-4cbe-a307-6784e895b1ca",
-        "courtyards_overlap|69618500|146902001|1153f04f-f3c5-4192-a7d6-476d5c37e151|4ea8a0c4-f71f-4d20-8e09-27fd5dbc169f",
-        "courtyards_overlap|80300999|126458001|47f7016c-f1df-4764-a1d3-7b676cd5e665|a946ba28-3030-4368-ba8b-121a6a6d9219",
-        "lib_footprint_mismatch|116586000|135763000|0873e104-0692-4af9-9d86-748777fb8e1d|00000000-0000-0000-0000-000000000000",
-        "lib_footprint_mismatch|77851000|127508000|47f7016c-f1df-4764-a1d3-7b676cd5e665|00000000-0000-0000-0000-000000000000",
-        "lib_footprint_mismatch|77851000|135763000|4ceca022-9976-4a3a-a66a-a2396414a583|00000000-0000-0000-0000-000000000000",
-        "starved_thermal|135001000|146568000|857a6737-13c4-41b0-8555-bba99d4272d6|a4e5f2fc-97f7-4773-b05e-097159af2543|F.Cu",
-        "starved_thermal|135001000|149108000|857a6737-13c4-41b0-8555-bba99d4272d6|ab8d1e73-ace6-4ecd-aad8-55daabe33d37|F.Cu",
-        "starved_thermal|84836000|131025500|857a6737-13c4-41b0-8555-bba99d4272d6|390235b9-42bd-42c0-bec7-a51be296ac0c|F.Cu",
-        "starved_thermal|86497000|147066000|857a6737-13c4-41b0-8555-bba99d4272d6|d1eff365-cd42-4097-a979-f16fe12f25cf|F.Cu",
-        "starved_thermal|89037000|147066000|857a6737-13c4-41b0-8555-bba99d4272d6|3d6417d9-e807-457c-91c5-fd1cc828ebf6|F.Cu"
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
