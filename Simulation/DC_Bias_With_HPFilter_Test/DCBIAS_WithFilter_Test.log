@@ -1,21 +1,21 @@
-Circuit: * C:\users\jazz\Documents\EMG-Controlled-Prosthetic\Simulation\DC_Bias_With_HPFilter_Test\DCBIAS_WithFilter_Test.asc
+Circuit: * Z:\home\jazz\Projects\EMG-Controlled-Prosthetic\Simulation\DC_Bias_With_HPFilter_Test\DCBIAS_WithFilter_Test.asc
 
 .OP point found by inspection.
 
-Date: Sat Mar 02 13:54:04 2024
-Total elapsed time: 0.140 seconds.
+Date: Mon Mar 04 15:20:17 2024
+Total elapsed time: 0.047 seconds.
 
 tnom = 27
 temp = 27
 method = modified trap
-totiter = 7250
-traniter = 7250
-tranpoints = 3626
+totiter = 7248
+traniter = 7248
+tranpoints = 3625
 accept = 2191
-rejected = 1435
+rejected = 1434
 matrix size = 6
 fillins = 0
 solver = Normal
-Matrix Compiler1: 146 bytes object code size  0.1/0.1/[0.1]
+Matrix Compiler1:       9 opcodes  0.1/[0.1]/0.1
 Matrix Compiler2: 380 bytes object code size  0.1/0.1/[0.1]
 
