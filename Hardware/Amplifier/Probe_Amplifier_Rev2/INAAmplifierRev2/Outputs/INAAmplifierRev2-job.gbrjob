@@ -3,14 +3,14 @@
     "GenerationSoftware": {
       "Vendor": "KiCad",
       "Application": "Pcbnew",
-      "Version": "7.0.10-7.0.10~ubuntu22.04.1"
+      "Version": "8.0.0-8.0.0-1~ubuntu22.04.1"
     },
-    "CreationDate": "2024-02-22T18:41:36-08:00"
+    "CreationDate": "2024-03-07T15:00:58-08:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
-      "Name": "INA129-Amplifier",
-      "GUID": "494e4131-3239-42d4-916d-706c69666965",
+      "Name": "INAAmplifierRev2",
+      "GUID": "494e4141-6d70-46c6-9966-696572526576",
       "Revision": "rev?"
     },
     "Size": {
@@ -27,50 +27,45 @@
       "PadToPad": 0.2,
       "PadToTrack": 0.2,
       "TrackToTrack": 0.2,
-      "MinLineWidth": 0.3556,
-      "TrackToRegion": 0.5,
-      "RegionToRegion": 0.5
+      "MinLineWidth": 0.25,
+      "TrackToRegion": 0.635,
+      "RegionToRegion": 0.635
     }
   ],
   "FilesAttributes": [
     {
-      "Path": "INA129-Amplifier-F_Cu.gbr",
+      "Path": "INAAmplifierRev2-F_Cu.gbr",
       "FileFunction": "Copper,L1,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "INA129-Amplifier-B_Cu.gbr",
+      "Path": "INAAmplifierRev2-B_Cu.gbr",
       "FileFunction": "Copper,L2,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "INA129-Amplifier-F_Silkscreen.gbr",
+      "Path": "INAAmplifierRev2-F_Silkscreen.gbr",
       "FileFunction": "Legend,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "INA129-Amplifier-B_Silkscreen.gbr",
+      "Path": "INAAmplifierRev2-B_Silkscreen.gbr",
       "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "INA129-Amplifier-F_Mask.gbr",
+      "Path": "INAAmplifierRev2-F_Mask.gbr",
       "FileFunction": "SolderMask,Top",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "INA129-Amplifier-B_Mask.gbr",
+      "Path": "INAAmplifierRev2-B_Mask.gbr",
       "FileFunction": "SolderMask,Bot",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "INA129-Amplifier-Edge_Cuts.gbr",
+      "Path": "INAAmplifierRev2-Edge_Cuts.gbr",
       "FileFunction": "Profile",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "INA129-Amplifier-F_Fab.gbr",
-      "FileFunction": "AssemblyDrawing,Top",
       "FilePolarity": "Positive"
     }
   ],
@@ -85,24 +80,29 @@
     },
     {
       "Type": "SolderMask",
+      "Thickness": 0.01,
       "Name": "Top Solder Mask"
     },
     {
       "Type": "Copper",
+      "Thickness": 0.035,
       "Name": "F.Cu"
     },
     {
       "Type": "Dielectric",
+      "Thickness": 1.51,
       "Material": "FR4",
       "Name": "F.Cu/B.Cu",
       "Notes": "Type: dielectric layer 1 (from F.Cu to B.Cu)"
     },
     {
       "Type": "Copper",
+      "Thickness": 0.035,
       "Name": "B.Cu"
     },
     {
       "Type": "SolderMask",
+      "Thickness": 0.01,
       "Name": "Bottom Solder Mask"
     },
     {
