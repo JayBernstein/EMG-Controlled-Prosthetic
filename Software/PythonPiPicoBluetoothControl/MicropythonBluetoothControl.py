@@ -1,7 +1,8 @@
 from machine import Pin,UART,
-import time
+import time, rp2
 led = Pin("LED", Pin.OUT)
 ATPin = Pin(2, Pin.OUT)
+inpin = Pin(3, Pin.IN)
 uart = UART(0,9600)
 print("hi")
 
@@ -66,7 +67,6 @@ def find_device_by_name(target_name):
     return None, None  # Device not found
 
 
-
 # Change device name
 new_name = 'JayConnection'
 send_at_command('AT+NAME={}'.format(new_name))
@@ -86,8 +86,8 @@ print('Mode Changed To:', new_mode)
 #print('Command_Mode:', commandmode)
 
 # Get device name
-#name = send_at_command('AT+NAME?')
-#print('Device Name:', name)
+name = send_at_command('AT+NAME?')
+print('Device Name:', name)
 
 # Get device password (default is usually 1234 or 0000)
 #password = send_at_command('AT+PSWD?')
@@ -105,10 +105,18 @@ print('Mode Changed To:', new_mode)
 #     print('Found device:', name, 'with address:', address)
 # else:
 #     print('Device not found')
+#send_at_command('AT+INQ')
 while True:
+    #name = send_at_command('AT+NAME?')
+    #print('Device Name:', name)
+    #print('enabled: ', ATPin.value(), ' ', time.time())
     # print('checking BT')
     # Example usage
-    decode_inquiry_response()
-    #if uart.any():
-      #  command = uart.readline()
-      #  print(command)
+    uart.write('Gubba \r\n')
+#     decode_inquiry_response()
+    if uart.any():
+        command = uart.readline()
+        print(command)
+        uart.write('Gubba \r\n')
+       
+        
