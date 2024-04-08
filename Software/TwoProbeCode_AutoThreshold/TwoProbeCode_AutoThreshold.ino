@@ -115,9 +115,10 @@ void setup() {
   digitalWrite(PWM5, LOW);   // turn the LED on (LOW is the voltage level)
 
   if (true) {
-    dcOffset = analogRead(dcOffsetPin) * 3.3 / 1023;  //only applicable in 10 bit mode
+    dcOffset = analogRead(dcOffsetPin);  //only applicable in 10 bit mode
     Serial.println(dcOffset);
   }
+  dcOffset = dcOffset / 3.3;
 }
 
 
@@ -144,13 +145,13 @@ void filterState() {
 
   for (int i = 0; i < samplesPerCycle; i++) {
 
-    normalizedValueArray1[i] = rawValueArray1[i] / 1023.0;  // This is the normalized raw value array from 0.0 to 1.0
-    normalizedValueArray2[i] = rawValueArray2[i] / 1023.0;
+    normalizedValueArray1[i] = rawValueArray1[i] / 1023.0 - dcOffset;  // This is the normalized raw value array from 0.0 to 1.0
+    normalizedValueArray2[i] = rawValueArray2[i] / 1023.0 - dcOffset;
 
     // filteredValueArray1[i] = abs((chebyshevFilter.step(normalizedValueArray1[i]) * 3.3) - 2);   // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
     // filteredValueArray2[i] = abs((chebyshevFilter2.step(normalizedValueArray2[i]) * 3.3) - 2);  // Second probe, will possibly require much less gain.
-    filteredValueArray1[i] = pow(2.71828, 3.3 * abs((chebyshevFilter.step(normalizedValueArray1[i]) * 3.3) - dcOffset)) - 1;   // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
-    filteredValueArray2[i] = pow(2.71828, 3.3 * abs((chebyshevFilter2.step(normalizedValueArray2[i]) * 3.3) - dcOffset)) - 1;  // Second probe, will possibly require much less gain.
+    filteredValueArray1[i] = pow(2.71828, abs(chebyshevFilter.step(normalizedValueArray1[i]) * 3.3)) - 1;   // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
+    filteredValueArray2[i] = pow(2.71828, abs(chebyshevFilter2.step(normalizedValueArray2[i]) * 3.3)) - 1;  // Second probe, will possibly require much less gain.
 
     totalOfWindow1 -= Window1[index];  // Subtract the oldest reading from the total
     totalOfWindow2 -= Window2[index];
@@ -195,19 +196,19 @@ void peakDetector() {
     sqrt(pow((LPInactiveThreshold1 - tempFilt1), 2) + pow((LPInactiveThreshold2 - tempFilt2), 2))
   };
   for (int it = 0; it < 5; it++) {
-  distance[it] =sqrt(pow((LPStartThreshold1[it] - tempFilt1), 2) + pow((LPStartThreshold2[it] - tempFilt2), 2));
-  Serial.print(distance[it]);
-  Serial.print("\t");
-  Serial.print(tempFilt1);
-  Serial.print(" ");
-  Serial.print(LPStartThreshold1[it]);
-  Serial.print("\t");
-  Serial.print(tempFilt2);
-  Serial.print(" ");
-  Serial.print(LPStartThreshold2[it]);
-  Serial.print("\n");
+    distance[it] = sqrt(pow((LPStartThreshold1[it] - tempFilt1), 2) + pow((LPStartThreshold2[it] - tempFilt2), 2));
+    Serial.print(distance[it]);
+    Serial.print("\t");
+    Serial.print(tempFilt1);
+    Serial.print(" ");
+    Serial.print(LPStartThreshold1[it]);
+    Serial.print("\t");
+    Serial.print(tempFilt2);
+    Serial.print(" ");
+    Serial.print(LPStartThreshold2[it]);
+    Serial.print("\n");
   }
-  
+
   int smallestindex = 6;
   float smallest = pow(2, 31);
   for (int i = 0; i < 6; i++) {
@@ -216,7 +217,7 @@ void peakDetector() {
       smallest = distance[i];
     }
   }
-      Serial.println(smallestindex);
+  Serial.println(smallestindex);
 
   if (smallestindex == 5) {
     for (int i = 0; i < 5; i++) {
@@ -307,10 +308,10 @@ bool ThresholdInit() {
 
 
     for (int tempiterator = 0; tempiterator < 3 * 40000 / samplesPerCycle; tempiterator++) {
-    digitalWrite(OutputPWMPins[i], HIGH);  // turn the LED on (HIGH is the voltage level)
+      digitalWrite(OutputPWMPins[i], HIGH);  // turn the LED on (HIGH is the voltage level)
 
-      emgSetup();     // Setup for raw input array according to appropriate samples per cycle
-digitalWrite(OutputPWMPins[i], LOW); 
+      emgSetup();  // Setup for raw input array according to appropriate samples per cycle
+      digitalWrite(OutputPWMPins[i], LOW);
 
       filterState();  // Rectified Filtered and Unfiltered voltage.
       bool triggerAffirm = false;
