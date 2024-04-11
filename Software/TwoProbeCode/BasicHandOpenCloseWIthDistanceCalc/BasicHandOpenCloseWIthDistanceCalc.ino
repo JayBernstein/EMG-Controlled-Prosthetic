@@ -1,18 +1,21 @@
-#include <Servo.h>
+// #include <Servo.h>
+#include <ADC.h>
+#include <PWMServo.h>
+ADC *adc = new ADC();  // adc object
 
-Servo ID1;  // Define all servo motors for hand
-Servo ID2;
-Servo ID3;
-Servo ID4;
-Servo ID5;
+PWMServo ID1;  // Define all PWMservo motors for hand
+PWMServo ID2;
+PWMServo ID3;
+PWMServo ID4;
+PWMServo ID5;
 float distance[3] = { 0, 0, 0 };
 
-int PWM1 = 0;  // the PWM pin the LED is attached to
-int PWM2 = 1;  // the PWM pin the LED is attached to
-int PWM3 = 2;  // the PWM pin the LED is attached to
-int PWM4 = 3;  // the PWM pin the LED is attached to
-int PWM5 = 4;
-int OutputPWMPins[5] = { PWM1, PWM2, PWM3, PWM4, PWM5 };
+// int PWM1 = 0;  // the PWM pin the LED is attached to
+// int PWM2 = 1;  // the PWM pin the LED is attached to
+// int PWM3 = 2;  // the PWM pin the LED is attached to
+// int PWM4 = 3;  // the PWM pin the LED is attached to
+// int PWM5 = 4;
+// int OutputPWMPins[5] = { PWM1, PWM2, PWM3, PWM4, PWM5 };
 
 int pin0 = 28;  // Dipswitches for debugging
 int pin1 = 29;
@@ -53,12 +56,21 @@ float recordPeak2 = 0.0;
 float averageProbe = 0.0;
 int cycle = 0;  // Number cycles elapsed
 
-float dcOffset = 1.622;  // DC voltage offset
+float dcOffset = 2.006;  // DC voltage offset
 
 float expGain = 4.0;
 
 void setup() {
-  Serial.begin(115000);  // Initialize serial communication buad rate
+  Serial.begin(115000);                                             // Initialize serial communication buad rate
+  adc->adc0->setAveraging(4);                                       // average 4 together
+  adc->adc0->setResolution(10);                                     // 10 bits resolution
+  adc->adc0->setConversionSpeed(ADC_CONVERSION_SPEED::HIGH_SPEED);  // Reference chart for speed. 4.5us per sample in this case
+  adc->adc0->setSamplingSpeed(ADC_SAMPLING_SPEED::LOW_MED_SPEED);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
+  delay(500);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
 
   ID1.attach(7);  //23
   ID2.attach(22);
@@ -93,7 +105,7 @@ void emgSetup() {
   for (int i = 0; i < samplesPerCycle; i++) {
     rawValueArray1[i] = analogRead(emgPin1);  // Value is 0-1023
     rawValueArray2[i] = analogRead(emgPin2);  // Value is 0-1023
-    delayMicroseconds(25);                    // FILTER NEEDS TO MATCH sample rate. 25uS = 40kHz currently. Anything slower will result in artifacting and distortion
+    delayMicroseconds(21);                    // FILTER NEEDS TO MATCH sample rate. 25uS = 40kHz currently. Anything slower will result in artifacting and distortion
   }
 }
 
