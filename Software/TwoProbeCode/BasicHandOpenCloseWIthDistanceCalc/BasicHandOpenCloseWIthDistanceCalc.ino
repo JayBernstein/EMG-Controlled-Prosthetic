@@ -155,7 +155,7 @@ void peakDetector() {
 
   Serial.print(" ");
   Serial.print(recordPeak2, 1);  // Print highest recorded peak with the 5 second refresh
-  distance[0] = sqrt(pow((1 - recordPeak1), 2) + pow((1 - recordPeak2), 2));
+  distance[0] = sqrt(pow((0 - recordPeak1), 2) + pow((0 - recordPeak2), 2));
   distance[1] = sqrt(pow((7.5 - recordPeak1), 2) + pow((7.5 - recordPeak2), 2));
   distance[2] = sqrt(pow((100 - recordPeak1), 2) + pow((100 - recordPeak2), 2));
   distance[3] = sqrt(pow((3 - recordPeak1), 2) + pow((3 - recordPeak2), 2));
@@ -241,15 +241,15 @@ void checkPos() {
     case 0:
       Serial.println("0");
       handControl[2][0] = 1;
-      handControl[2][1] = 0;
-      handControl[2][2] = 0;
-      handControl[2][3] = 0;
-      handControl[2][4] = 0;
+      handControl[2][1] = 1;
+      handControl[2][2] = 1;
+      handControl[2][3] = 1;
+      handControl[2][4] = 1;
       break;
     case 1:
       Serial.println("1");
       handControl[2][0] = 0;
-      handControl[2][1] = 1;
+      handControl[2][1] = 0;
       handControl[2][2] = 0;
       handControl[2][3] = 0;
       handControl[2][4] = 0;
@@ -258,7 +258,7 @@ void checkPos() {
       Serial.println("2");
       handControl[2][0] = 0;
       handControl[2][1] = 0;
-      handControl[2][2] = 1;
+      handControl[2][2] = 0;
       handControl[2][3] = 0;
       handControl[2][4] = 0;
       break;
@@ -311,37 +311,37 @@ void fingerOpen(int fingerActive) {
   switch (fingerActive) {
 
     case 0:
-      for (int j = 10; j < 170; j++) {
+      for (int j = 10; j < 170; j+=10) {
         ID1.write(170 - j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 1:
-      for (int j = 10; j < 170; j++) {
+      for (int j = 10; j < 170; j+=10) {
         ID2.write(j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 2:
-      for (int j = 10; j < 170; j++) {
+      for (int j = 10; j < 170; j+=10) {
         ID3.write(j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 3:
-      for (int j = 10; j < 170; j++) {
+      for (int j = 10; j < 170; j+=10) {
         ID4.write(j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 4:
-      for (int j = 10; j < 170; j++) {
+      for (int j = 10; j < 170; j+=10) {
         ID5.write(j);
-        delay(1);
+        delay(5);
       }
       break;
   }
@@ -352,37 +352,37 @@ void fingerClose(int fingerActive) {
   switch (fingerActive) {
 
     case 0:
-      for (int j = 160; j >= 1; j--) {
+      for (int j = 160; j >= 1; j-=10) {
         ID1.write(180 - j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 1:
-      for (int j = 160; j >= 1; j--) {
+      for (int j = 160; j >= 1; j-=10) {
         ID2.write(j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 2:
-      for (int j = 160; j >= 1; j--) {
+      for (int j = 160; j >= 1; j-=10) {
         ID3.write(j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 3:
-      for (int j = 160; j >= 1; j--) {
+      for (int j = 160; j >= 1; j-=10) {
         ID4.write(j);
-        delay(1);
+        delay(5);
       }
       break;
 
     case 4:
-      for (int j = 160; j >= 1; j--) {
+      for (int j = 160; j >= 1; j-=10) {
         ID5.write(j);
-        delay(1);
+        delay(5);
       }
       break;
   }
