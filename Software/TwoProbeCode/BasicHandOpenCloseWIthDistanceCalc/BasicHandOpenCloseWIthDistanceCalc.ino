@@ -8,7 +8,8 @@ PWMServo ID2;
 PWMServo ID3;
 PWMServo ID4;
 PWMServo ID5;
-float distance[3] = { 0, 0, 0 };
+#define distanceIndexMax 5
+float distance[distanceIndexMax] = { 0, 0, 0, 0, 0};
 
 // int PWM1 = 0;  // the PWM pin the LED is attached to
 // int PWM2 = 1;  // the PWM pin the LED is attached to
@@ -34,12 +35,10 @@ bool handControl[3][5] = {
 
 const int emgPin1 = A4;            // Analog input pin 18 for the sEMG signal
 const int emgPin2 = A3;            // Analog input 17 pin for the sEMG signal
-const int samplesPerCycle = 1000;  // Array samples
+const int samplesPerCycle = 3000;  // Array samples
 
-float normalizedValueArray1[samplesPerCycle];
 float filteredValueArray1[samplesPerCycle];
 
-float normalizedValueArray2[samplesPerCycle];
 float filteredValueArray2[samplesPerCycle];
 
 float rawValueArray1[samplesPerCycle];
@@ -72,11 +71,11 @@ void setup() {
   delay(500);                       // wait for a second
   digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
 
-  ID1.attach(7);  //23
-  ID2.attach(22);
-  ID3.attach(21);
-  ID4.attach(20);
-  ID5.attach(19);
+  ID1.attach(0);  //23
+  ID2.attach(1);
+  ID3.attach(2);
+  ID4.attach(3);
+  ID5.attach(4);
 }
 
 //Low pass chebyshev filter order=1 alpha1=0.0375
@@ -105,7 +104,7 @@ void emgSetup() {
   for (int i = 0; i < samplesPerCycle; i++) {
     rawValueArray1[i] = analogRead(emgPin1);  // Value is 0-1023
     rawValueArray2[i] = analogRead(emgPin2);  // Value is 0-1023
-    delayMicroseconds(21);                    // FILTER NEEDS TO MATCH sample rate. 25uS = 40kHz currently. Anything slower will result in artifacting and distortion
+    delayMicroseconds(16);                    // FILTER NEEDS TO MATCH sample rate. 25uS = 40kHz currently. Anything slower will result in artifacting and distortion
   }
 }
 
@@ -113,11 +112,9 @@ void filterState() {
 
   for (int i = 0; i < samplesPerCycle; i++) {
 
-    normalizedValueArray1[i] = rawValueArray1[i] / 1023.0;  // This is the normalized raw value array from 0.0 to 1.0
-    normalizedValueArray2[i] = rawValueArray2[i] / 1023.0;
 
-    filteredValueArray1[i] = pow(2.71828, expGain * abs((chebyshevFilter1.step(normalizedValueArray1[i]) * 3.3) - dcOffset)) - 1;  // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
-    filteredValueArray2[i] = pow(2.71828, expGain * abs((chebyshevFilter2.step(normalizedValueArray2[i]) * 3.3) - dcOffset)) - 1;  // Second probe, will possibly require much less gain.
+    filteredValueArray1[i] = pow(2.71828, expGain * abs((chebyshevFilter1.step(rawValueArray1[i] / 1023.0) * 3.3) - dcOffset)) - 1;  // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
+    filteredValueArray2[i] = pow(2.71828, expGain * abs((chebyshevFilter2.step(rawValueArray2[i] / 1023.0) * 3.3) - dcOffset)) - 1;  // Second probe, will possibly require much less gain.
   }
 }
 
@@ -158,9 +155,11 @@ void peakDetector() {
 
   Serial.print(" ");
   Serial.print(recordPeak2, 1);  // Print highest recorded peak with the 5 second refresh
-  distance[0] = sqrt(pow((0 - recordPeak1), 2) + pow((0 - recordPeak2), 2));
+  distance[0] = sqrt(pow((1 - recordPeak1), 2) + pow((1 - recordPeak2), 2));
   distance[1] = sqrt(pow((7.5 - recordPeak1), 2) + pow((7.5 - recordPeak2), 2));
   distance[2] = sqrt(pow((100 - recordPeak1), 2) + pow((100 - recordPeak2), 2));
+  distance[3] = sqrt(pow((3 - recordPeak1), 2) + pow((3 - recordPeak2), 2));
+  distance[4] = sqrt(pow((50 - recordPeak1), 2) + pow((50 - recordPeak2), 2));
   if (false) {
     Serial.print(" ");
     Serial.print(distance[0], 1);  // Print highest recorded peak with the 5 second refresh
@@ -224,9 +223,9 @@ void checkPos() {
   // };
 
 
-  int smallestindex = 3;
+  int smallestindex = distanceIndexMax;
   float smallest = pow(2, 31);
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < distanceIndexMax; i++) {
     if (distance[i] < smallest) {
       smallestindex = i;
       smallest = distance[i];
@@ -263,13 +262,29 @@ void checkPos() {
       handControl[2][3] = 0;
       handControl[2][4] = 0;
       break;
+    case 3:
+      // Serial.println("1");
+      // handControl[2][0] = 0;
+      // handControl[2][1] = 0;
+      // handControl[2][2] = 0;
+      // handControl[2][3] = 0;
+      // handControl[2][4] = 0;
+      break;
+    case 4:
+      Serial.println("1");
+      // handControl[2][0] = 0;
+      // handControl[2][1] = 0;
+      // handControl[2][2] = 0;
+      // handControl[2][3] = 0;
+      // handControl[2][4] = 0;
+      break;
     default:
       Serial.println("foo");
-      handControl[2][0] = 0;
-      handControl[2][1] = 0;
-      handControl[2][2] = 0;
-      handControl[2][3] = 0;
-      handControl[2][4] = 0;
+      // handControl[2][0] = 0;
+      // handControl[2][1] = 0;
+      // handControl[2][2] = 0;
+      // handControl[2][3] = 0;
+      // handControl[2][4] = 0;
       break;
   }
 }
@@ -298,35 +313,35 @@ void fingerOpen(int fingerActive) {
     case 0:
       for (int j = 10; j < 170; j++) {
         ID1.write(170 - j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 1:
       for (int j = 10; j < 170; j++) {
         ID2.write(j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 2:
       for (int j = 10; j < 170; j++) {
         ID3.write(j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 3:
       for (int j = 10; j < 170; j++) {
         ID4.write(j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 4:
       for (int j = 10; j < 170; j++) {
         ID5.write(j);
-        delay(4);
+        delay(1);
       }
       break;
   }
@@ -337,61 +352,42 @@ void fingerClose(int fingerActive) {
   switch (fingerActive) {
 
     case 0:
-      for (int j = 180; j >= 1; j--) {
+      for (int j = 160; j >= 1; j--) {
         ID1.write(180 - j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 1:
-      for (int j = 180; j >= 1; j--) {
+      for (int j = 160; j >= 1; j--) {
         ID2.write(j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 2:
-      for (int j = 180; j >= 1; j--) {
+      for (int j = 160; j >= 1; j--) {
         ID3.write(j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 3:
-      for (int j = 180; j >= 1; j--) {
+      for (int j = 160; j >= 1; j--) {
         ID4.write(j);
-        delay(4);
+        delay(1);
       }
       break;
 
     case 4:
-      for (int j = 180; j >= 1; j--) {
+      for (int j = 160; j >= 1; j--) {
         ID5.write(j);
-        delay(4);
+        delay(1);
       }
       break;
   }
 }
 
-void engageFinger() {
-
-
-  if (recordPeak1 > 200) {
-    handControl[0][2] = 1;
-  }
-
-  else if (recordPeak1 < 10) {
-    handControl[0][2] = 0;
-  }
-
-  if (recordPeak1 > 30 && recordPeak1 < 130) {
-    handControl[0][3] = 1;
-  }
-
-  else if (recordPeak1 < 10) {
-    handControl[0][3] = 0;
-  }
-}
 
 void loop() {
 
@@ -405,7 +401,6 @@ void loop() {
 
     peakDetector();  // Serial print cycle peak detection
     checkPos();      // checks & updates position, state and activate
-    // engageFinger();
 
     delay(25);  // Delay for imaging capture, this will also change the cycle refresh for recordPeak
   }
