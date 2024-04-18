@@ -8,8 +8,8 @@ PWMServo ID2;
 PWMServo ID3;
 PWMServo ID4;
 PWMServo ID5;
-#define distanceIndexMax 5
-float distance[distanceIndexMax] = { 0, 0, 0, 0, 0};
+#define distanceIndexMax 3
+float distance[distanceIndexMax] = { 0, 0, 0 };
 
 // int PWM1 = 0;  // the PWM pin the LED is attached to
 // int PWM2 = 1;  // the PWM pin the LED is attached to
@@ -106,10 +106,6 @@ void emgSetup() {
     rawValueArray2[i] = analogRead(emgPin2);  // Value is 0-1023
     delayMicroseconds(16);                    // FILTER NEEDS TO MATCH sample rate. 25uS = 40kHz currently. Anything slower will result in artifacting and distortion
   }
-}
-
-void filterState() {
-
   for (int i = 0; i < samplesPerCycle; i++) {
 
 
@@ -117,6 +113,8 @@ void filterState() {
     filteredValueArray2[i] = pow(2.71828, expGain * abs((chebyshevFilter2.step(rawValueArray2[i] / 1023.0) * 3.3) - dcOffset)) - 1;  // Second probe, will possibly require much less gain.
   }
 }
+
+
 
 void peakDetector() {
 
@@ -140,7 +138,11 @@ void peakDetector() {
   tempFilt2 = 0.0;        // Re-initialize tempFilt
   // Serial.print(filtPeak2, 1);
 
-
+  if (cycle == 10) {
+    cycle = 0;
+    recordPeak1 = 0.0;
+    recordPeak2 = 0.0;
+  }
   if (cycle < 10) {  // 20*25 = 500 = 0.5 second cycle reset, count starts from 0
 
     if (recordPeak1 < filtPeak1) { recordPeak1 = filtPeak1; }
@@ -155,29 +157,13 @@ void peakDetector() {
 
   Serial.print(" ");
   Serial.print(recordPeak2, 1);  // Print highest recorded peak with the 5 second refresh
-  distance[0] = sqrt(pow((0 - recordPeak1), 2) + pow((0 - recordPeak2), 2));
-  distance[1] = sqrt(pow((7.5 - recordPeak1), 2) + pow((7.5 - recordPeak2), 2));
-  distance[2] = sqrt(pow((100 - recordPeak1), 2) + pow((100 - recordPeak2), 2));
-  distance[3] = sqrt(pow((3 - recordPeak1), 2) + pow((3 - recordPeak2), 2));
-  distance[4] = sqrt(pow((50 - recordPeak1), 2) + pow((50 - recordPeak2), 2));
-  if (false) {
-    Serial.print(" ");
-    Serial.print(distance[0], 1);  // Print highest recorded peak with the 5 second refresh
-    Serial.print(" ");
-    Serial.print(distance[1], 1);  // Print highest recorded peak with the 5 second refresh
-    Serial.print(" ");
-    Serial.print(distance[2], 1);  // Print highest recorded peak with the 5 second refresh
-  }
+
   averageProbe = (recordPeak1 + recordPeak2) / 2;
   // Serial.print(" ");
   // Serial.println(averageProbe, 1);  // Print highest recorded peak with the 5 second refresh
 
-  if (cycle == 10) {
-    cycle = 0;
-    recordPeak1 = 0.0;
-    recordPeak2 = 0.0;
-  }  // 20*25 = 500 = 0.5 second cycle reset, for both emg sets
-     // Serial.print("stuff \t");  // Print highest recorded peak with the 5 second refresh
+  // 20*25 = 500 = 0.5 second cycle reset, for both emg sets
+  // Serial.print("stuff \t");  // Print highest recorded peak with the 5 second refresh
 
   // Serial.print(handControl[2][1], 1);    // Print highest recorded peak with the 5 second refresh
   // Serial.print(handControl[2][2], 1);    // Print highest recorded peak with the 5 second refresh
@@ -222,7 +208,17 @@ void checkPos() {
   //   sqrt(pow((100 - recordPeak1), 2))
   // };
 
-
+  distance[0] = sqrt(pow((0 - recordPeak1), 2) + pow((0 - recordPeak2), 2));
+  distance[1] = sqrt(pow((2 - recordPeak1), 2) + pow((2 - recordPeak2), 2));
+  distance[2] = sqrt(pow((7.5 - recordPeak1), 2) + pow((7.5 - recordPeak2), 2));
+  if (false) {
+    Serial.print(" ");
+    Serial.print(distance[0], 1);  // Print highest recorded peak with the 5 second refresh
+    Serial.print(" ");
+    Serial.print(distance[1], 1);  // Print highest recorded peak with the 5 second refresh
+    Serial.print(" ");
+    Serial.print(distance[2], 1);  // Print highest recorded peak with the 5 second refresh
+  }
   int smallestindex = distanceIndexMax;
   float smallest = pow(2, 31);
   for (int i = 0; i < distanceIndexMax; i++) {
@@ -247,12 +243,6 @@ void checkPos() {
       handControl[2][4] = 1;
       break;
     case 1:
-      Serial.println("1");
-      handControl[2][0] = 0;
-      handControl[2][1] = 0;
-      handControl[2][2] = 0;
-      handControl[2][3] = 0;
-      handControl[2][4] = 0;
       break;
     case 2:
       Serial.println("2");
@@ -311,35 +301,35 @@ void fingerOpen(int fingerActive) {
   switch (fingerActive) {
 
     case 0:
-      for (int j = 10; j < 170; j+=10) {
+      for (int j = 10; j < 170; j += 10) {
         ID1.write(170 - j);
         delay(5);
       }
       break;
 
     case 1:
-      for (int j = 10; j < 170; j+=10) {
+      for (int j = 10; j < 170; j += 10) {
         ID2.write(j);
         delay(5);
       }
       break;
 
     case 2:
-      for (int j = 10; j < 170; j+=10) {
+      for (int j = 10; j < 170; j += 10) {
         ID3.write(j);
         delay(5);
       }
       break;
 
     case 3:
-      for (int j = 10; j < 170; j+=10) {
+      for (int j = 10; j < 170; j += 10) {
         ID4.write(j);
         delay(5);
       }
       break;
 
     case 4:
-      for (int j = 10; j < 170; j+=10) {
+      for (int j = 10; j < 170; j += 10) {
         ID5.write(j);
         delay(5);
       }
@@ -352,41 +342,81 @@ void fingerClose(int fingerActive) {
   switch (fingerActive) {
 
     case 0:
-      for (int j = 160; j >= 1; j-=10) {
+      for (int j = 160; j >= 1; j -= 10) {
         ID1.write(180 - j);
         delay(5);
       }
       break;
 
     case 1:
-      for (int j = 160; j >= 1; j-=10) {
+      for (int j = 160; j >= 1; j -= 10) {
         ID2.write(j);
         delay(5);
       }
       break;
 
     case 2:
-      for (int j = 160; j >= 1; j-=10) {
+      for (int j = 160; j >= 1; j -= 10) {
         ID3.write(j);
         delay(5);
       }
       break;
 
     case 3:
-      for (int j = 160; j >= 1; j-=10) {
+      for (int j = 160; j >= 1; j -= 10) {
         ID4.write(j);
         delay(5);
       }
       break;
 
     case 4:
-      for (int j = 160; j >= 1; j-=10) {
+      for (int j = 160; j >= 1; j -= 10) {
         ID5.write(j);
         delay(5);
       }
       break;
   }
 }
+
+void ThresholdInit() {
+  // Serial.print(LPInactiveThreshold1);
+  // Serial.print("\t");
+  // Serial.println(LPInactiveThreshold1);
+  for (int i = 0; i < 3; i++) {
+
+    Serial.print("When LED turns on, Flex and hold finger\t");
+    delay(1000);
+
+
+    if (i==1)
+    {
+      fingerOpen(0);
+    }
+    else if (i == 2)
+    {
+
+    }
+    else
+    {
+
+    }
+    for (int findMaxIterator; findMaxIterator > 25; findMaxIterator++) {
+      emgSetup();  // Setup for raw input array according to appropriate samples per cycle
+      float tempFilt1 = 0.0;
+      float tempFilt2 = 0.0;
+      for (int i = 0; i < samplesPerCycle; i++) {
+        if (tempFilt1 < filteredValueArray1[i]) { tempFilt1 = filteredValueArray1[i]; }
+        if (tempFilt2 < filteredValueArray2[i]) { tempFilt2 = filteredValueArray2[i]; }
+      }
+      if (recordPeak1 < tempFilt1) { recordPeak1 = tempFilt1; }
+      if (recordPeak2 < tempFilt2) { recordPeak2 = tempFilt2; }
+    }
+    LPStartThreshold1[i] = recordPeak1;
+    LPStartThreshold2[i] = recordPeak2;
+    fingerOpen(fingeriteration);
+  }
+}
+
 
 
 void loop() {
@@ -396,8 +426,7 @@ void loop() {
     activatePos();  // this function avoids the need for setup, already initialized
 
 
-    emgSetup();     // Setup for raw input array according to appropriate samples per cycle
-    filterState();  // Rectified Filtered and Unfiltered voltage.
+    emgSetup();  // Setup for raw input array according to appropriate samples per cycle
 
     peakDetector();  // Serial print cycle peak detection
     checkPos();      // checks & updates position, state and activate
