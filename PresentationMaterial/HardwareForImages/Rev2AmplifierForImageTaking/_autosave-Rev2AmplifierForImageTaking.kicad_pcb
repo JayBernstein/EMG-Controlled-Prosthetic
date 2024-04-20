@@ -2459,8 +2459,9 @@
 		(descr "Mounting Hole 3.2mm, no annular, M3")
 		(tags "mounting hole 3.2mm no annular m3")
 		(property "Reference" "H1"
-			(at -0.127 -2.794 0)
+			(at -0.127 -5.334 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "45078560-d650-4045-906e-8603998cf3e4")
 			(effects
 				(font
@@ -2894,6 +2895,7 @@
 		(property "Reference" "H3"
 			(at -0.127 -2.794 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "fc8f607d-3805-4fb2-9f3b-8bdd11c0b97e")
 			(effects
 				(font
@@ -3486,8 +3488,9 @@
 		(descr "Mounting Hole 3.2mm, no annular, M3")
 		(tags "mounting hole 3.2mm no annular m3")
 		(property "Reference" "H2"
-			(at -0.127 -2.794 0)
+			(at -0.127 4.826 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "ca396016-f099-4fe3-99ff-b71a6998f34f")
 			(effects
 				(font
@@ -8172,6 +8175,7 @@
 		(property "Reference" "H4"
 			(at 0 -2.794 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "24a214ba-ce1e-40e6-8ae0-414adc634032")
 			(effects
 				(font
