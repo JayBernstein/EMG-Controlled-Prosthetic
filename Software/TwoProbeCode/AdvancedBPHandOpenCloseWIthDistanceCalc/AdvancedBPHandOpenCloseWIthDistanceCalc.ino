@@ -14,8 +14,12 @@ const uint8_t fingerArrangement[NUMBEROFSTATES] = { 0b11110, 0b00010, 0b11101, 0
 float distance[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
 float LPStartThreshold1[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
 float LPStartThreshold2[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
+float BPStartThreshold1[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
+float BPStartThreshold2[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
 float LPIntermediateThreshold1[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
 float LPIntermediateThreshold2[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
+float BPIntermediateThreshold1[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
+float BPIntermediateThreshold2[NUMBEROFSTATES] = { 0, 0, 0, 0, 0 };
 
 
 // int PWM1 = 0;  // the PWM pin the LED is attached to
@@ -46,6 +50,8 @@ const int emgPin2 = A3;  // Analog input 17 pin for the sEMG signal
 
 float filteredValueArray1[SAMPLESPERCYCLE];
 float filteredValueArray2[SAMPLESPERCYCLE];
+float BPFilteredValueArray1[SAMPLESPERCYCLE];
+float BPFilteredValueArray2[SAMPLESPERCYCLE];
 
 float rawValueArray1[SAMPLESPERCYCLE];
 float rawValueArray2[SAMPLESPERCYCLE];
@@ -56,6 +62,8 @@ float LPInactiveThreshold2 = 2 ^ 31;
 
 float recordPeak1 = 0.0;  // Highest recorded peak value
 float recordPeak2 = 0.0;
+float recordPeakBP1 = 0.0;
+float recordPeakBP2 = 0.0;
 
 float averageProbe = 0.0;
 int cycle = 0;  // Number cycles elapsed
@@ -88,7 +96,30 @@ void setup() {
   fingerServo[4].write(90);  //Initialize each finger
 }
 
+//Band pass chebyshev filter order=1 alpha1=0.0125 alpha2=0.05
+class FilterChBp1 {
+public:
+  FilterChBp1() {
+    v[0] = 0.0;
+    v[1] = 0.0;
+    v[2] = 0.0;
+  }
+private:
+  float v[3];
+public:
+  float step(float x)  //class II
+  {
+    v[0] = v[1];
+    v[1] = v[2];
+    v[2] = (1.105985005341628691e-1 * x)
+           + (-0.78788661454735842149 * v[0])
+           + (1.76577240199021168188 * v[1]);
+    return (v[2] - v[0]);
+  }
+};
 
+FilterChBp1 chebyshevBP1;  // First order chebyshev LPF 40kHz BP 500-2kHz
+FilterChBp1 chebyshevBP2;  //  First order chebyshev LPF 40kHz BP 500-2kHz
 
 //Low pass chebyshev filter order=1 alpha1=0.0375
 class FilterChLp1 {
@@ -121,8 +152,12 @@ void emgSetup() {
   for (int i = 0; i < SAMPLESPERCYCLE; i++) {
     // filteredValueArray1[i] = pow(2.71828, expGain * abs((chebyshevFilter1.step(rawValueArray1[i] / 1023.0) * 3.3) - dcOffset)) - 1;  // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
     // filteredValueArray2[i] = pow(2.71828, expGain * abs((chebyshevFilter2.step(rawValueArray2[i] / 1023.0) * 3.3) - dcOffset)) - 1;  // Second probe, will possibly require much less gain.
+    // BPFilteredValueArray1[i] = pow(2.71828, expGain * abs((chebyshevBP1.step(rawValueArray1[i] / 1023.0) * 3.3) - dcOffset)) - 1;  // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
+    // BPFilteredValueArray2[i] = pow(2.71828, expGain * abs((chebyshevBP2.step(rawValueArray2[i] / 1023.0) * 3.3) - dcOffset)) - 1;  // Second probe, will possibly require much less gain.
     filteredValueArray1[i] = abs(chebyshevFilter1.step(rawValueArray1[i] / 1023.0) * 3.3 - dcOffset);  // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x - 1. Arbitrary values
     filteredValueArray2[i] = abs(chebyshevFilter2.step(rawValueArray2[i] / 1023.0) * 3.3 - dcOffset);  // Second probe, will possibly require much less gain.
+    BPFilteredValueArray1[i] = abs(chebyshevBP1.step(rawValueArray1[i] / 1023.0) * 3.3);               // Apply LPF to voltage minus the offset. Then rectify values. e^3.3x. Arbitrary values
+    BPFilteredValueArray2[i] = abs(chebyshevBP2.step(rawValueArray2[i] / 1023.0) * 3.3);               // Second probe, will possibly require much less gain.
   }
 }
 
@@ -133,17 +168,21 @@ void peakDetector() {
   float filtPeak1 = 0.0;
   float filtPeak2 = 0.0;
 
-  float tempFilt1 = 0, tempFilt2 = 0 ;
+  float tempFilt1 = 0, tempFilt2 = 0, tempBPFilt1 = 0, tempBPFilt2 = 0;
   for (int i = 0; i < SAMPLESPERCYCLE; i++) {
 
     if (tempFilt1 < filteredValueArray1[i]) { tempFilt1 = filteredValueArray1[i]; }
     if (tempFilt2 < filteredValueArray2[i]) { tempFilt2 = filteredValueArray2[i]; }
-
+    if (tempBPFilt1 < BPFilteredValueArray1[i]) { tempBPFilt1 = BPFilteredValueArray1[i]; }
+    if (tempBPFilt2 < BPFilteredValueArray2[i]) { tempBPFilt2 = BPFilteredValueArray2[i]; }
   }
 
   // inactiveDistanceLP = sqrt(pow((0 - recordPeak1), 2) + pow((0 - recordPeak2), 2));
+  // inactiveDistanceBP = sqrt(pow((0 - recordPeakBP1), 2) + pow((0 - recordPeakBP2), 2));
   // distanceLP = sqrt(pow((LPStartThreshold1[] - recordPeak1), 2) + pow((LPStartThreshold2[] - recordPeak2), 2));
+  // distanceBP = sqrt(pow((BPStartThreshold1[] - recordPeakBP1), 2) + pow((BPStartThreshold2[] - recordPeakBP2), 2));
   // intermediateDistanceLP = sqrt(pow((LPIntermediateThreshold1[] - recordPeak1), 2) + pow((LPIntermediateThreshold2[] - recordPeak2), 2));
+  // intermediateDistanceBP = sqrt(pow((BPIntermediateThreshold1[] - recordPeakBP1), 2) + pow((BPIntermediateThreshold2[] - recordPeakBP2), 2));
 
   filtPeak1 = tempFilt1;  // filtPeak1 will hold the peak, we can use these to activate leds VIA threshold
   tempFilt1 = 0.0;        // Re-initialize tempFilt
@@ -352,7 +391,7 @@ void ThresholdInit() {
     // Serial.print("When LED turns on, Flex and hold finger\n");
     delay(1000);
     ExecuteFingerPositions(fingerArrangement[positioniterator]);                                                                                                                           //move hand into desired position
-    float tempFilt1 = 0, tempFilt2 = 0, tempIntermediateFilt1 = 0, tempIntermediateFilt2 = 0;  //initialize values
+    float tempFilt1 = 0, tempFilt2 = 0, tempBPFilt1 = 0, tempBPFilt2 = 0, tempIntermediateFilt1 = 0, tempIntermediateFilt2 = 0, tempIntermediateBPFilt1 = 0, tempIntermediateBPFilt2 = 0;  //initialize values
     uint numberOfIntermediateSamples = 0;                                                                                                                                                  //used to average intermediate readings
     for (int checkthresholditerator = 0; checkthresholditerator < (int)5 * 40000 / SAMPLESPERCYCLE; checkthresholditerator++) {                                                            //for 5 seconds
       emgSetup();                                                                                                                                                                          //take a reading
@@ -362,19 +401,29 @@ void ThresholdInit() {
         if (tempFilt1 < filteredValueArray1[sampleiterator] || tempFilt2 < filteredValueArray2[sampleiterator]) {  //if either probe has a absolute maximum
           tempFilt1 = filteredValueArray1[sampleiterator];                                                         //update each activation level
           tempFilt2 = filteredValueArray2[sampleiterator];
+          tempBPFilt1 = BPFilteredValueArray1[sampleiterator];
+          tempBPFilt2 = BPFilteredValueArray2[sampleiterator];
           tempIntermediateFilt1 = 0;  //reset intermediate value
           tempIntermediateFilt2 = 0;
+          tempIntermediateBPFilt1 = 0;
+          tempIntermediateBPFilt2 = 0;
           numberOfIntermediateSamples = 0;  //reset number of values in intermediate value
         }
       }
       if (numberOfIntermediateSamples > 0) {  //starting on frame after maximum, start summing local maximums into appropriate variables
         tempIntermediateFilt1 += tempFilt1;   //sum up values as
         tempIntermediateFilt2 += tempFilt2;
+        tempIntermediateBPFilt1 += tempBPFilt1;
+        tempIntermediateBPFilt2 += tempBPFilt2;
       }
       LPStartThreshold1[positioniterator] = tempFilt1;  //store absolute value of activation
       LPStartThreshold2[positioniterator] = tempFilt2;
+      BPStartThreshold1[positioniterator] = tempBPFilt1;
+      BPStartThreshold2[positioniterator] = tempBPFilt2;
       LPIntermediateThreshold1[positioniterator] = tempIntermediateFilt1 / numberOfIntermediateSamples;  //store held value by averaging local maximums of each frame after activation
       LPIntermediateThreshold2[positioniterator] = tempIntermediateFilt2 / numberOfIntermediateSamples;
+      BPIntermediateThreshold1[positioniterator] = tempIntermediateBPFilt1 / numberOfIntermediateSamples;
+      BPIntermediateThreshold2[positioniterator] = tempIntermediateBPFilt2 / numberOfIntermediateSamples;
 
       //acquire
       //check if a local maximum is reached from any input
@@ -395,6 +444,16 @@ void ThresholdInit() {
       Serial.print("]: ");
       Serial.println(LPStartThreshold2[positioniterator]);
 
+      Serial.print("BPStartThreshold1[");
+      Serial.print(positioniterator);
+      Serial.print("]: ");
+      Serial.println(BPStartThreshold1[positioniterator]);
+
+      Serial.print("BPStartThreshold2[");
+      Serial.print(positioniterator);
+      Serial.print("]: ");
+      Serial.println(BPStartThreshold2[positioniterator]);
+
       Serial.print("LPIntermediateThreshold1[");
       Serial.print(positioniterator);
       Serial.print("]: ");
@@ -405,8 +464,15 @@ void ThresholdInit() {
       Serial.print("]: ");
       Serial.println(LPIntermediateThreshold2[positioniterator]);
 
+      Serial.print("BPIntermediateThreshold1[");
+      Serial.print(positioniterator);
+      Serial.print("]: ");
+      Serial.println(BPIntermediateThreshold1[positioniterator]);
 
-
+      Serial.print("BPIntermediateThreshold2[");
+      Serial.print(positioniterator);
+      Serial.print("]: ");
+      Serial.println(BPIntermediateThreshold2[positioniterator]);
     }
   }
 }
